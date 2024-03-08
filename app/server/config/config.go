@@ -7,8 +7,17 @@ import (
 	"gitee.com/openeuler/PilotGo/sdk/utils/config"
 )
 
+type MysqlDBInfo struct {
+	HostName string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	UserName string `yaml:"user"`
+	Password string `yaml:"password"`
+	DataBase string `yaml:"database"`
+}
+
 type ServerConfig struct {
 	Logopts *logger.LogOpts `yaml:"log"`
+	Mysql   *MysqlDBInfo    `yaml:"mysql"`
 }
 
 var config_file string
