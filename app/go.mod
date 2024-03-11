@@ -5,6 +5,7 @@ go 1.21.6
 require (
 	gitee.com/openeuler/PilotGo/sdk v0.0.0-20240305034100-5ac22cd7ddaf
 	github.com/duke-git/lancet v1.4.3
+	github.com/gin-gonic/gin v1.9.1
 	github.com/shirou/gopsutil/v3 v3.24.2
 	gorm.io/driver/mysql v1.5.4
 	gorm.io/gorm v1.25.7
@@ -16,7 +17,6 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.9.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
