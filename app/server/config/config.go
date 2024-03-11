@@ -7,6 +7,9 @@ import (
 	"gitee.com/openeuler/PilotGo/sdk/utils/config"
 )
 
+type HttpServer struct {
+	Addr string `yaml:"addr"`
+}
 type MysqlDBInfo struct {
 	HostName string `yaml:"host"`
 	Port     int    `yaml:"port"`
@@ -16,8 +19,9 @@ type MysqlDBInfo struct {
 }
 
 type ServerConfig struct {
-	Logopts *logger.LogOpts `yaml:"log"`
-	Mysql   *MysqlDBInfo    `yaml:"mysql"`
+	HttpServer *HttpServer     `yaml:"http_server"`
+	Logopts    *logger.LogOpts `yaml:"log"`
+	Mysql      *MysqlDBInfo    `yaml:"mysql"`
 }
 
 var config_file string
