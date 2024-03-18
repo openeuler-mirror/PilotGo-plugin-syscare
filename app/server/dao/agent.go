@@ -2,6 +2,7 @@ package dao
 
 import (
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/db"
+	"gitee.com/openeuler/PilotGo/sdk/response"
 )
 
 type Agents struct {
@@ -18,6 +19,27 @@ type Agents struct {
 	CpuNum          int    `json:"cpuNum"`          //cpu核数
 }
 
+// 查询所有agent信息
+func QueryAgents() ([]*Agents, error) {
+	var agents []*Agents
+	if err := db.MySQL().Find(&agents).Error; err != nil {
+		return nil, err
+	}
+	return agents, nil
+}
+
+func SearchAgents(search string, query *response.PaginationQ) ([]*Agents, int64, error) {
+	var agent []*Agents
+	if err := db.MySQL().Limit(query.PageSize).Offset((query.Page-1)*query.PageSize).Where("ip LIKE ? OR platform LIKE ? OR platform_version LIKE ? OR os_version LIKE ? OR kernel_version LIKE ? OR kernel_arch LIKE ? OR cpu_model_name LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%").Find(&agent).Error; err != nil {
+		return nil, 0, nil
+	}
+
+	var total int64
+	if err := db.MySQL().Where("ip LIKE ? OR platform LIKE ? OR platform_version LIKE ? OR os_version LIKE ? OR kernel_version LIKE ? OR kernel_arch LIKE ? OR cpu_model_name LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%").Model(&agent).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return agent, total, nil
+}
 func SaveAgent(agent *Agents) error {
 	err := db.MySQL().Create(&agent).Error
 	return err

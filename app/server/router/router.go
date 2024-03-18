@@ -37,6 +37,7 @@ func registerAPIs(router *gin.Engine) {
 	logger.Debug("router register")
 	agent := router.Group("/plugin/syscare")
 	{
+		agent.GET("agentList", controller.GetAgentsHandler)
 		agent.POST("addAgent", controller.AddAgentHandler)
 	}
 
