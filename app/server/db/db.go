@@ -27,11 +27,7 @@ func MySQL() *gorm.DB {
 }
 
 func MysqldbInit(conf *config.MysqlDBInfo) error {
-	err := ensureDatabase(conf)
-	if err != nil {
-		return err
-	}
-	_, err = mysqlInit(
+	_, err := mysqlInit(
 		conf.HostName,
 		conf.UserName,
 		conf.Password,
@@ -40,7 +36,6 @@ func MysqldbInit(conf *config.MysqlDBInfo) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -60,6 +55,10 @@ func mysqlInit(ip, username, password, dbname string, port int) (*mysqlManager, 
 		m.dbName)
 
 	var err error
+	err = ensureDatabase(m)
+	if err != nil {
+		return nil, err
+	}
 	m.db, err = gorm.Open(mysql.Open(url), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
@@ -80,18 +79,18 @@ func mysqlInit(ip, username, password, dbname string, port int) (*mysqlManager, 
 
 	return m, nil
 }
-func ensureDatabase(conf *config.MysqlDBInfo) error {
+func ensureDatabase(m *mysqlManager) error {
 	Url := fmt.Sprintf("%s:%s@(%s:%d)/?charset=utf8mb4&parseTime=true",
-		conf.UserName,
-		conf.Password,
-		conf.HostName,
-		conf.Port)
+		m.userName,
+		m.passWord,
+		m.ip,
+		m.port)
 	db, err := gorm.Open(mysql.Open(Url))
 	if err != nil {
 		return err
 	}
 
-	creatDataBase := "CREATE DATABASE IF NOT EXISTS " + conf.DataBase + " DEFAULT CHARSET utf8 COLLATE utf8_general_ci"
+	creatDataBase := "CREATE DATABASE IF NOT EXISTS " + m.dbName + " DEFAULT CHARSET utf8 COLLATE utf8_general_ci"
 	db.Exec(creatDataBase)
 
 	d, err := db.DB()
