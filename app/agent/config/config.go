@@ -7,7 +7,12 @@ import (
 	"gitee.com/openeuler/PilotGo/sdk/utils/config"
 )
 
+type Server struct {
+	Port string `yaml:"port"`
+}
+
 type AgentConfig struct {
+	Server  *Server         `yaml:"server"`
 	Logopts *logger.LogOpts `yaml:"log"`
 }
 
