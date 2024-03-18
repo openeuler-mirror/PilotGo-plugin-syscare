@@ -10,6 +10,9 @@ import (
 type HttpServer struct {
 	Addr string `yaml:"addr"`
 }
+type AgentServer struct {
+	Port string `yaml:"port"`
+}
 type MysqlDBInfo struct {
 	HostName string `yaml:"host"`
 	Port     int    `yaml:"port"`
@@ -19,9 +22,10 @@ type MysqlDBInfo struct {
 }
 
 type ServerConfig struct {
-	HttpServer *HttpServer     `yaml:"http_server"`
-	Logopts    *logger.LogOpts `yaml:"log"`
-	Mysql      *MysqlDBInfo    `yaml:"mysql"`
+	HttpServer  *HttpServer     `yaml:"http_server"`
+	AgentServer *AgentServer    `yaml:"agent_server"`
+	Logopts     *logger.LogOpts `yaml:"log"`
+	Mysql       *MysqlDBInfo    `yaml:"mysql"`
 }
 
 var config_file string
