@@ -48,10 +48,17 @@ func SearchAgents(search string, query *response.PaginationQ) ([]*Agents, int64,
 	return agent, total, nil
 }
 
+// 删除agent
+func DeleteAgent(ip string) error {
+	err := db.MySQL().Where("ip = ?", ip).Delete(&Agents{}).Error
+	return err
+}
+
 func SaveAgent(agent *Agents) error {
 	err := db.MySQL().Create(&agent).Error
 	return err
 }
+
 func IsExistIP(ip string) (bool, error) {
 	var a Agents
 	err := db.MySQL().Where("ip = ?", ip).Find(&a).Error

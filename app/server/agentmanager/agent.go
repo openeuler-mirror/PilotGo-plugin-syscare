@@ -28,6 +28,14 @@ func GetAgentsWithStatus() ([]*Agent, error) {
 	return result, nil
 }
 
+func DeleteAgent(ip string) error {
+	if err := globalAgentManager.deleteAgent(ip); err != nil {
+		logger.Error("failed to delete agent: %s", err.Error())
+		return err
+	}
+	return nil
+}
+
 func AddAgent(ip string) (*Agent, error) {
 	if ok, err := dao.IsExistIP(ip); err != nil {
 		return &Agent{}, err
