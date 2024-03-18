@@ -28,3 +28,12 @@ func UnBindHandler(c *gin.Context) {
 	client.GlobalClient.UUID = ""
 	response.Success(c, nil, "unbind server success")
 }
+
+func Heartbeat(c *gin.Context) {
+	ok := client.GlobalClient.IsBind()
+	if ok {
+		response.Success(c, "bind", "")
+	} else {
+		response.Fail(c, nil, "")
+	}
+}
