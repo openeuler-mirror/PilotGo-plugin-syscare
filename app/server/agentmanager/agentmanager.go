@@ -54,6 +54,92 @@ var globalAgentManager = &AgentManager{
 	Agents: []*Agent{},
 }
 
+// 从DB中恢复agent信息
+func (am *AgentManager) recovery() error {
+	agents, err := dao.QueryAgents()
+	if err != nil {
+		logger.Error("failed to recovery agent info from db")
+		return nil
+	}
+
+	for _, a := range agents {
+		logger.Debug("recovery agent: %s %s", a.UUID, a.IP)
+		err := am.updateAgent(a.UUID, a.IP)
+		if err != nil {
+			logger.Error("failed to update agent info: %s", a.IP)
+			am.Lock()
+			am.Agents = append(am.Agents, &Agent{
+				UUID:            a.UUID,
+				IP:              a.IP,
+				Platform:        a.Platform,
+				PlatformVersion: a.PlatformVersion,
+				OsVersion:       a.OsVersion,
+				KernelVersion:   a.KernelVersion,
+				KernelArch:      a.KernelArch,
+				Uptime:          a.Uptime,
+				CpuModelName:    a.CpuModelName,
+				CpuNum:          a.CpuNum,
+			})
+			am.Unlock()
+			agentHeartbeatUpdateFail(a.IP, a.UUID)
+		}
+	}
+
+	logger.Debug("finish recovery")
+	return nil
+}
+
+// 获取所有agent
+func (am *AgentManager) getAgents() ([]*Agent, error) {
+	result := []*Agent{}
+	am.Lock()
+	for _, v := range am.Agents {
+		a := v.clone()
+		result = append(result, a)
+	}
+	am.Unlock()
+
+	return result, nil
+}
+
+// 根据ip查询最新的agent信息，更新到指定的uuid记录当中
+func (am *AgentManager) updateAgent(uuid string, ip string) error {
+	info, err := getAgentInfo(ip)
+	if err != nil {
+		logger.Error("failed to get agent info:%s", err.Error())
+		return err
+	}
+	info.UUID = uuid
+	err = bindServerAndUUID(ip, uuid)
+	if err != nil {
+		logger.Error("update bind agent error:%s", err.Error())
+		return err
+	}
+
+	a := &Agent{
+		UUID:            uuid,
+		IP:              ip,
+		Platform:        info.Platform,
+		PlatformVersion: info.PlatformVersion,
+		OsVersion:       info.OsVersion,
+		KernelVersion:   info.KernelVersion,
+		KernelArch:      info.KernelArch,
+		Uptime:          info.Uptime,
+		CpuModelName:    info.CpuModelName,
+		CpuNum:          info.CpuNum,
+	}
+	if err := dao.UpdateAgentInfo(toAgentDao(a)); err != nil {
+		return err
+	}
+	agentHeartbeatUpdateSuccess(ip, a.UUID)
+
+	am.Lock()
+	am.Agents = append(am.Agents, a)
+	am.Unlock()
+
+	return nil
+}
+
 func (am *AgentManager) addAgent(ip string) (*Agent, error) {
 	a, err := getAgentInfo(ip)
 	if err != nil {
@@ -156,6 +242,21 @@ func unbind(ip string) error {
 		return errors.New(d.Message)
 	}
 	return nil
+}
+
+func toAgentDao(a *Agent) *dao.Agents {
+	return &dao.Agents{
+		UUID:            a.UUID,
+		IP:              a.IP,
+		Platform:        a.Platform,
+		PlatformVersion: a.PlatformVersion,
+		OsVersion:       a.OsVersion,
+		KernelVersion:   a.KernelVersion,
+		KernelArch:      a.KernelArch,
+		Uptime:          a.Uptime,
+		CpuModelName:    a.CpuModelName,
+		CpuNum:          a.CpuNum,
+	}
 }
 
 func (a *Agent) clone() *Agent {
