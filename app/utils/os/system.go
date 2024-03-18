@@ -15,18 +15,18 @@ type SystemInfo struct {
 	IP              string
 	Platform        string //系统平台
 	PlatformVersion string //系统版本
-	PrettyName      string //可读性良好的OS具体版本
+	OsVersion       string //可读性良好的OS具体版本
 	KernelVersion   string //内核版本
 	KernelArch      string //内核支持架构
 	HostId          string //系统id
 	Uptime          string //系统最新启动时间
 }
 type OSReleaseInfo struct {
-	Name       string
-	Version    string
-	ID         string
-	VersionID  string
-	PrettyName string
+	Name      string
+	Version   string
+	ID        string
+	VersionID string
+	OsVersion string
 }
 
 func GetHostInfo() (*SystemInfo, error) {
@@ -51,7 +51,7 @@ func GetHostInfo() (*SystemInfo, error) {
 		IP:              ip,
 		Platform:        hostInfo.Platform,
 		PlatformVersion: hostInfo.PlatformVersion,
-		PrettyName:      osReleaseInfo.PrettyName,
+		OsVersion:       osReleaseInfo.OsVersion,
 		KernelVersion:   hostInfo.KernelVersion,
 		KernelArch:      hostInfo.KernelArch,
 		HostId:          hostInfo.HostID,
@@ -88,7 +88,7 @@ func osReleaseInfo() (*OSReleaseInfo, error) {
 			case "VERSION_ID":
 				info.VersionID = v
 			case "PRETTY_NAME":
-				info.PrettyName = v
+				info.OsVersion = v
 			}
 		} else {
 			return nil, errors.New("invalid os-release format:" + line)
