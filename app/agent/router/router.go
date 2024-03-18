@@ -1,12 +1,15 @@
 package router
 
 import (
+	"net/http"
 	"time"
 
 	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/client"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/config"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/controller"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/utils"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
+	"gitee.com/openeuler/PilotGo/sdk/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,6 +49,14 @@ func setupRouter() *gin.Engine {
 func registerAPIs(router *gin.Engine) {
 	logger.Debug("router register")
 
+	// 提供syscare agent基本信息
+	mg := router.Group("/plugin_agent_manage/")
+	{
+		mg.GET("/heartbeat", func(c *gin.Context) { response.Success(c, "pong", "") })
+		mg.GET("/info", func(c *gin.Context) { c.JSON(http.StatusOK, client.GetClient()) })
+		mg.PUT("/bind", controller.BindHandler)     // 绑定agent server和uuid
+		mg.PUT("/unbind", controller.UnBindHandler) // 解绑agent server和uuid
+	}
 }
 
 func requestLogger() gin.HandlerFunc {
