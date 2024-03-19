@@ -19,6 +19,13 @@ type Agents struct {
 	CpuNum          int    `json:"cpuNum"`          //cpu核数
 }
 
+// 更新agent信息
+func UpdateAgentInfo(agent *Agents) error {
+	var a Agents
+	err := db.MySQL().Model(&a).Where("uuid = ?", agent.UUID).Updates(agent).Error
+	return err
+}
+
 // 查询所有agent信息
 func QueryAgents() ([]*Agents, error) {
 	var agents []*Agents
@@ -40,6 +47,7 @@ func SearchAgents(search string, query *response.PaginationQ) ([]*Agents, int64,
 	}
 	return agent, total, nil
 }
+
 func SaveAgent(agent *Agents) error {
 	err := db.MySQL().Create(&agent).Error
 	return err
