@@ -26,38 +26,7 @@ type AgentConnect struct {
 func checkAgentsHeartbeat() {
 	for {
 		broadcastHeartbeat() // 广播发送心跳
-		checkAndRebind()
 		time.Sleep(heartbeatInterval)
-	}
-}
-
-func checkAndRebind() {
-	agents, err := globalAgentManager.getAgents()
-	if err != nil {
-		logger.Error("get agents failed: %v", err.Error())
-	}
-
-	for _, a := range agents {
-		agent_status, ok := AgentHeartbeatMap.Load(a.UUID)
-		if !ok {
-			logger.Error("Error get %v last heartbeat: %v", a.IP, err)
-			continue
-		}
-
-		if !agent_status.(*AgentConnect).Connect || time.Since(agent_status.(*AgentConnect).LastHeartbeatTime) > heartbeatInterval+1*time.Second {
-			err := bindServerAndUUID(a.IP, a.UUID)
-			if err != nil {
-				logger.Error("rebind agent and syscare server failed: %v", err.Error())
-				value := &AgentConnect{
-					IP:                a.IP,
-					Connect:           false,
-					LastHeartbeatTime: agent_status.(*AgentConnect).LastHeartbeatTime,
-				}
-				AgentHeartbeatMap.Store(a.UUID, value)
-			} else {
-				agentHeartbeatUpdateSuccess(a.IP, a.UUID)
-			}
-		}
 	}
 }
 
@@ -68,10 +37,17 @@ func broadcastHeartbeat() {
 		logger.Error("get agents failed: %v", err.Error())
 	}
 	for _, a := range agents {
+		agent_status, ok := AgentHeartbeatMap.Load(a.UUID)
+		if !ok {
+			logger.Error("Error get %v last heartbeat: %v", a.IP, err)
+			continue
+		}
+
 		url := "http://" + a.IP + ":" + config.Config().AgentServer.Port + "/plugin_agent_manage/heartbeat"
 		resp, err := httputils.Get(url, nil)
 		if err != nil {
 			logger.Error("get agent info error: %s", err.Error())
+			agentHeartbeatUpdate(a.IP, a.UUID, agent_status)
 			continue
 		}
 		res := &struct {
@@ -83,23 +59,19 @@ func broadcastHeartbeat() {
 			continue
 		}
 
-		if res.Code != http.StatusOK {
-			agent_status, ok := AgentHeartbeatMap.Load(a.UUID)
-			if !ok {
-				logger.Error("Error get %v last heartbeat: %v", a.IP, err)
-				continue
-			}
-			value := &AgentConnect{
-				IP:                a.IP,
-				Connect:           false,
-				LastHeartbeatTime: agent_status.(*AgentConnect).LastHeartbeatTime,
-			}
-			AgentHeartbeatMap.Store(a.UUID, value)
-		} else {
+		if res.Code == http.StatusOK && res.Data != "" {
 			agentHeartbeatUpdateSuccess(a.IP, a.UUID)
+		} else if res.Code != http.StatusOK || res.Data == "" {
+			err := bindServerAndUUID(a.IP, a.UUID)
+			if err != nil {
+				logger.Error("rebind agent and syscare server failed: %v", err.Error())
+				agentHeartbeatUpdate(a.IP, a.UUID, agent_status)
+			} else {
+				agentHeartbeatUpdateSuccess(a.IP, a.UUID)
+			}
 		}
-	}
 
+	}
 }
 
 func agentHeartbeatUpdateSuccess(ip, uuid string) {
@@ -115,6 +87,14 @@ func agentHeartbeatUpdateFail(ip, uuid string) {
 		IP:                ip,
 		Connect:           false,
 		LastHeartbeatTime: time.Now(),
+	}
+	AgentHeartbeatMap.Store(uuid, value)
+}
+func agentHeartbeatUpdate(ip, uuid string, agent_status any) {
+	value := &AgentConnect{
+		IP:                ip,
+		Connect:           false,
+		LastHeartbeatTime: agent_status.(*AgentConnect).LastHeartbeatTime,
 	}
 	AgentHeartbeatMap.Store(uuid, value)
 }
