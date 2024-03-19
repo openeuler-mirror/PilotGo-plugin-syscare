@@ -51,3 +51,13 @@ func AddAgentHandler(c *gin.Context) {
 	}
 	response.Success(c, agent, "添加主机成功")
 }
+
+func DeleteAgentHandler(c *gin.Context) {
+	ip := c.Param("ip")
+	err := agentmanager.DeleteAgent(ip)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	response.Success(c, nil, "删除主机成功")
+}

@@ -139,7 +139,40 @@ func (am *AgentManager) updateAgent(uuid string, ip string) error {
 
 	return nil
 }
+func (am *AgentManager) deleteAgent(ip string) error {
+	err := unbind(ip)
+	if err != nil {
+		return err
+	}
 
+	if err := dao.DeleteAgent(ip); err != nil {
+		logger.Error("failed to delete agent info:%s", err.Error())
+		return err
+	}
+
+	am.Lock()
+	index := 0
+	uuid := ""
+	for i, v := range am.Agents {
+		if v.IP == ip {
+			index = i
+			uuid = v.UUID
+			break
+		}
+	}
+
+	if index == 0 {
+		am.Agents = am.Agents[1:]
+	} else if index == len(am.Agents)-1 {
+		am.Agents = am.Agents[:index]
+	} else {
+		am.Agents = append(am.Agents[:index], am.Agents[index+1:]...)
+	}
+
+	AgentHeartbeatMap.Delete(uuid)
+	am.Unlock()
+	return nil
+}
 func (am *AgentManager) addAgent(ip string) (*Agent, error) {
 	a, err := getAgentInfo(ip)
 	if err != nil {
