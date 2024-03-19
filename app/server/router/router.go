@@ -5,12 +5,12 @@ import (
 	"strings"
 
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/config"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/server/controller"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 	"github.com/gin-gonic/gin"
 )
 
 func HttpServerInit(conf *config.HttpServer) error {
-
 	go func() {
 		r := setupRouter()
 		logger.Info("start http service on: http://%s", conf.Addr)
@@ -35,6 +35,10 @@ func setupRouter() *gin.Engine {
 }
 func registerAPIs(router *gin.Engine) {
 	logger.Debug("router register")
+	agent := router.Group("/plugin/syscare")
+	{
+		agent.POST("addAgent", controller.AddAgentHandler)
+	}
 
 }
 

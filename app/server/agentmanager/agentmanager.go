@@ -12,6 +12,7 @@ import (
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/db"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 	"gitee.com/openeuler/PilotGo/sdk/utils/httputils"
+	"github.com/google/uuid"
 )
 
 func Init() error {
@@ -51,6 +52,37 @@ type AgentManager struct {
 var globalAgentManager = &AgentManager{
 	Mutex:  sync.Mutex{},
 	Agents: []*Agent{},
+}
+
+func (am *AgentManager) addAgent(ip string) (*Agent, error) {
+	a, err := getAgentInfo(ip)
+	if err != nil {
+		logger.Error("first get agent info error: %s", err.Error())
+		return nil, err
+	}
+	if a.UUID == "" {
+		a.UUID = uuid.New().String()
+	} else {
+		return a, errors.New("the added host has been bound")
+	}
+
+	err = bindServerAndUUID(ip, a.UUID)
+	if err != nil {
+		logger.Error("first bind agent error:%s", err.Error())
+		return nil, err
+	}
+
+	if err := dao.SaveAgent(toAgentDao(a)); err != nil {
+		return nil, err
+	}
+
+	agentHeartbeatUpdateSuccess(ip, a.UUID)
+
+	am.Lock()
+	am.Agents = append(am.Agents, a)
+	am.Unlock()
+
+	return a, nil
 }
 
 // 获取到agent的基本信息
