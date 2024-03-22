@@ -61,3 +61,12 @@ func DeleteAgentHandler(c *gin.Context) {
 	}
 	response.Success(c, nil, "删除主机成功")
 }
+func AgentBuildEnv(c *gin.Context) {
+	ip := c.Query("ip")
+	data, err := service.GetBuildEnv(ip)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	response.Success(c, data, "获取到热补丁环境")
+}

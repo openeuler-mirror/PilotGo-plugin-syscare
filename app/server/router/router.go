@@ -40,6 +40,7 @@ func registerAPIs(router *gin.Engine) {
 		agent.GET("agentList", controller.GetAgentsHandler)
 		agent.POST("addAgent", controller.AddAgentHandler)
 		agent.DELETE("/:ip", controller.DeleteAgentHandler)
+		agent.GET("buildEnv", controller.AgentBuildEnv)
 	}
 
 }
