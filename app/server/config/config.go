@@ -20,12 +20,15 @@ type MysqlDBInfo struct {
 	Password string `yaml:"password"`
 	DataBase string `yaml:"database"`
 }
-
+type Storage struct {
+	Path string `yaml:"path"`
+}
 type ServerConfig struct {
 	HttpServer  *HttpServer     `yaml:"http_server"`
 	AgentServer *AgentServer    `yaml:"agent_server"`
 	Logopts     *logger.LogOpts `yaml:"log"`
 	Mysql       *MysqlDBInfo    `yaml:"mysql"`
+	Storage     *Storage        `yaml:"storage"`
 }
 
 var config_file string
