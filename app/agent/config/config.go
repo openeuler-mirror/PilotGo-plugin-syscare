@@ -10,10 +10,14 @@ import (
 type Server struct {
 	Port string `yaml:"port"`
 }
-
+type Storage struct {
+	Path string `yaml:"path"`
+	Work string `yaml:"work"`
+}
 type AgentConfig struct {
 	Server  *Server         `yaml:"server"`
 	Logopts *logger.LogOpts `yaml:"log"`
+	Storage Storage         `yaml:"storage"`
 }
 
 var config_file string

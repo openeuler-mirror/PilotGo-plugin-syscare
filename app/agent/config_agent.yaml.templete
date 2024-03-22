@@ -6,3 +6,6 @@ log:
   path: ./log/pilotgo_plugin_syscare_agent.log
   max_file: 1
   max_size: 10485760
+storage:  #包存储路径
+  path: "/opt/kylinwarm/agent/storage"  # kernel包路径
+  work: "/opt/kylinwarm/agent/work" # 生成的热补丁包路径
