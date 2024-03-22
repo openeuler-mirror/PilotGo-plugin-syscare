@@ -31,6 +31,45 @@ type Rpms struct {
 	DebugInfo string `json:"debugInfo"`
 }
 
+func SearchDependentEnv() ([]*rpms, error) {
+	buildEnv := []*rpms{}
+
+	srcRpms, err := searchKernelSrcRpm()
+	if err != nil {
+		return nil, err
+	}
+	for version, srcRpm := range srcRpms {
+		src := &rpms{
+			Version: version,
+			Rpms:    Rpms{SrcRpm: srcRpm},
+		}
+		buildEnv = append(buildEnv, src)
+	}
+
+	debugInfoRpms, err := searchKernelDebugRpm()
+	if err != nil {
+		return nil, err
+	}
+	for version, debugInfoRpm := range debugInfoRpms {
+		found := false
+		for _, existMap := range buildEnv {
+			if existMap.Version == version {
+				existMap.Rpms.DebugInfo = debugInfoRpm
+				found = true
+				break
+			}
+		}
+		if !found {
+			newRpm := &rpms{
+				Version: version,
+				Rpms:    Rpms{DebugInfo: debugInfoRpm},
+			}
+			buildEnv = append(buildEnv, newRpm)
+		}
+	}
+
+	return buildEnv, nil
+}
 func searchKernelSrcRpm() (map[string]string, error) {
 	srcRpm := make(map[string]string)
 	files, err := os.ReadDir(config.Config().Storage.Path)

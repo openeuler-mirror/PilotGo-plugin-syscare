@@ -56,6 +56,10 @@ func registerAPIs(router *gin.Engine) {
 		mg.PUT("/bind", controller.BindHandler)     // 绑定agent server和uuid
 		mg.PUT("/unbind", controller.UnBindHandler) // 解绑agent server和uuid
 	}
+	storage := router.Group("/plugin_agent_manage/")
+	{
+		storage.GET("/buildEnv", controller.BuildEnv)
+	}
 }
 
 func requestLogger() gin.HandlerFunc {
