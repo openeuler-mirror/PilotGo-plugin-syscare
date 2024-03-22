@@ -1,9 +1,15 @@
 package service
 
 import (
+	"encoding/json"
+	"errors"
+	"net/http"
+
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/agentmanager"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/server/config"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/dao"
 	"gitee.com/openeuler/PilotGo/sdk/response"
+	"gitee.com/openeuler/PilotGo/sdk/utils/httputils"
 
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 )
@@ -70,4 +76,32 @@ func SearchAgents(search string, query *response.PaginationQ) ([]*agentmanager.A
 	}
 	return data, int(total), nil
 
+}
+func GetBuildEnv(ip string) (interface{}, error) {
+	url := "http://" + ip + ":" + config.Config().AgentServer.Port + "/plugin_agent_manage/buildEnv"
+	resp, err := httputils.Get(url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	rpms := &struct {
+		Code int `json:"code"`
+		Data []struct {
+			Version string `json:"version"`
+			Rpms    struct {
+				SrcRpm    string `json:"srcRpm"`
+				DebugInfo string `json:"debugInfo"`
+			} `json:"rpm"`
+		} `json:"data"`
+		Msg string `json:"msg"`
+	}{}
+	err = json.Unmarshal(resp.Body, rpms)
+	if err != nil {
+		logger.Error("unmarshal get agent info error: %s", err.Error())
+		return nil, err
+	}
+	if rpms.Code != http.StatusOK {
+		return nil, errors.New(rpms.Msg)
+	}
+	return rpms.Data, nil
 }
