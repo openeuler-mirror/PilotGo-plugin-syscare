@@ -10,12 +10,12 @@ import (
 func RunCommand(s string) (int, string, string, error) {
 	cmd := exec.Command("/bin/bash", "-c", "export LANG=en_US.utf8 ; "+s)
 
-	stdout, err := cmd.StdoutPipe()
+	Stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return 0, "", "", err
 	}
 
-	stderr, err := cmd.StderrPipe()
+	Stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return 0, "", "", err
 	}
@@ -26,17 +26,17 @@ func RunCommand(s string) (int, string, string, error) {
 		return 0, "", "", err
 	}
 
-	b1, err := io.ReadAll(stdout)
+	b1, err := io.ReadAll(Stdout)
 	if err != nil {
 		return 0, "", "", err
 	}
-	s1 := strings.TrimRight(string(b1), "\n")
+	stdout := strings.TrimRight(string(b1), "\n")
 
-	b2, err := io.ReadAll(stderr)
+	b2, err := io.ReadAll(Stderr)
 	if err != nil {
 		return 0, "", "", err
 	}
-	s2 := strings.TrimRight(string(b2), "\n")
+	stderr := strings.TrimRight(string(b2), "\n")
 
 	err = cmd.Wait()
 	if err != nil {
@@ -48,5 +48,5 @@ func RunCommand(s string) (int, string, string, error) {
 		exitCode = e.ExitCode()
 	}
 
-	return exitCode, s1, s2, nil
+	return exitCode, stdout, stderr, nil
 }
