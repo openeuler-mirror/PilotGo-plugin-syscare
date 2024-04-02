@@ -43,6 +43,11 @@ func registerAPIs(router *gin.Engine) {
 		agent.GET("buildEnv", controller.AgentBuildEnv)
 	}
 
+	warm := router.Group("/plugin/syscare")
+	{
+		warm.GET("lists", controller.QueryWarmLists)
+	}
+
 	fileservice := router.Group("/plugin/syscare")
 	{
 		fileservice.POST("/upload", controller.Upload)

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/config"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/server/service"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 	"gitee.com/openeuler/PilotGo/sdk/response"
 	"github.com/gin-gonic/gin"
@@ -62,7 +63,7 @@ func Upload(c *gin.Context) {
 		defer file.Close()
 
 		uploadPath := c.DefaultQuery("path", config.Config().Storage.Path)
-		if err := makeDir(uploadPath); err != nil {
+		if err := service.MakeDir(uploadPath); err != nil {
 			response.Fail(c, nil, "创建存储目录失败")
 			return
 		}
@@ -87,10 +88,9 @@ func Download(c *gin.Context) {
 	filename := c.Param("filename")
 
 	// 获取下载文件的路径，可以通过path设置
-	downloadPath := c.DefaultQuery("path", config.Config().Storage.Path)
-
-	// 构建完整的文件路径
-	filePath := filepath.Join(downloadPath, filename)
+	taskId := c.Query("path")
+	downloadPath := config.Config().Storage.Path + taskId
+	filePath := filepath.Join(downloadPath, filename) // 构建完整的文件路径
 
 	// 检查文件是否存在
 	_, err := os.Stat(filePath)
@@ -118,16 +118,4 @@ func Download(c *gin.Context) {
 		response.Fail(c, gin.H{"error": err.Error()}, "文件下载失败")
 		return
 	}
-}
-
-func makeDir(storage string) error {
-	if _, err := os.Stat(storage); os.IsNotExist(err) {
-		err := os.MkdirAll(storage, os.ModePerm)
-		if err != nil {
-			return err
-		}
-	} else if err != nil {
-		return err
-	}
-	return nil
 }
