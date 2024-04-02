@@ -21,7 +21,7 @@ func main() {
 		fmt.Printf("logger init failed, please check the config file: %s", err)
 		os.Exit(-1)
 	}
-	if err := service.PathInit(config.Config().Storage.Path); err != nil {
+	if err := service.MakeDir(config.Config().Storage.Path); err != nil {
 		fmt.Printf("storage path init failed, error: %s", err)
 		os.Exit(-1)
 	}
@@ -31,6 +31,7 @@ func main() {
 		logger.Error("http server init failed, error: %s", err)
 		os.Exit(-1)
 	}
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	for {

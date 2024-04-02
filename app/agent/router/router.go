@@ -60,6 +60,11 @@ func registerAPIs(router *gin.Engine) {
 	{
 		storage.GET("/buildEnv", controller.BuildEnv)
 	}
+
+	fileservice := router.Group("/plugin_agent_manage/")
+	{
+		fileservice.GET("/download/:filename", controller.Download)
+	}
 }
 
 func requestLogger() gin.HandlerFunc {
