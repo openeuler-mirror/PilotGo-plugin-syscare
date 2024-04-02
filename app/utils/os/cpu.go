@@ -32,7 +32,7 @@ func GetCPUInfo() (*CPUInfo, error) {
 
 // 获取CPU型号
 func getCPUName() (string, error) {
-	exitc, cpuname, stde, err := utils.RunCommand("lscpu | grep 'Model name' | sort | uniq")
+	exitc, cpuname, stde, err := utils.RunCommand("lscpu | grep 'Model name' | sort | uniq", "")
 	if exitc == 0 && len(cpuname) > 0 && stde == "" && err == nil {
 		cpuname = strings.Replace(cpuname, "\n", "", -1)
 		str := strings.Split(cpuname, ":")
@@ -50,7 +50,7 @@ func getCPUName() (string, error) {
 
 // 获取物理CPU个数
 func getPhysicalCPU() (int, error) {
-	exitc, num, stde, err := utils.RunCommand("cat /proc/cpuinfo| grep 'processor'| sort| uniq| wc -l")
+	exitc, num, stde, err := utils.RunCommand("cat /proc/cpuinfo| grep 'processor'| sort| uniq| wc -l", "")
 	if exitc == 0 && len(num) > 0 && stde == "" && err == nil {
 		num = strings.Replace(num, "\n", "", -1)
 		cpunum, erratoi := strconv.Atoi(num)
