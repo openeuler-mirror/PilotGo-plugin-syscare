@@ -1,22 +1,54 @@
 package service
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
 	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/client"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/config"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/utils"
+	"gitee.com/openeuler/PilotGo/sdk/logger"
 )
 
-func PathInit(storage string) error {
+func MakeDir(storage string) error {
 	if _, err := os.Stat(storage); os.IsNotExist(err) {
 		err := os.MkdirAll(storage, os.ModePerm)
 		if err != nil {
 			return err
 		}
 	} else if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DownloadPatchsFromServer(patch, taskId, downloadPath string) error {
+	url := "http://" + client.GlobalClient.AgentServer + "/plugin/syscare/download/" + patch + "?path=" + taskId
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(resp.Status)
+	}
+
+	out, err := os.Create(downloadPath + "/" + patch) // 保存文件的路径
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
 		return err
 	}
 	return nil
@@ -108,4 +140,57 @@ func searchKernelDebugRpm() (map[string]string, error) {
 		}
 	}
 	return debuginfoRpm, nil
+}
+func ScanHotPatchRpm(path string) (string, string, error) {
+	var kernelSrcRpm string
+	var Rpm string
+	files, err := os.ReadDir(path)
+	if err != nil {
+		return "", "", err
+	}
+	arch := client.GetClient().KernelArch
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), "src.rpm") {
+			matches := regexp.MustCompile(`(.+).src.rpm`).FindStringSubmatch(file.Name())
+			if len(matches) >= 2 {
+				kernelSrcRpm = file.Name()
+			}
+		}
+		if strings.HasSuffix(file.Name(), arch+".rpm") {
+			reString := fmt.Sprintf(`(.+)\.%s\.rpm`, arch)
+			matches := regexp.MustCompile(reString).FindStringSubmatch(file.Name())
+			if len(matches) >= 2 {
+				Rpm = file.Name()
+			}
+		}
+	}
+	return kernelSrcRpm, Rpm, nil
+}
+func GetBuildLog(rootDir string) (string, error) {
+	logFiles, err := walkLogFiles(rootDir)
+	logger.Info("读取build.log: %v", logFiles[0])
+	if err != nil {
+		return "", err
+	}
+	logString, err := utils.FileReadString(logFiles[0])
+	return logString, err
+}
+
+func walkLogFiles(rootDir string) ([]string, error) {
+	var logFiles []string
+	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(info.Name(), "build.log") {
+			logFiles = append(logFiles, path)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return logFiles, nil
 }
