@@ -15,4 +15,4 @@ mysql:
   password: ''
   database: PluginSyscare
 storage: 
-  path: "/opt/kylinwarm/server/storage/"  # 存储热补丁包路径，path路径最后必须带"/"
+  path: "/opt/syscare/server/storage/"  # 存储热补丁包路径，path路径最后必须带"/"
