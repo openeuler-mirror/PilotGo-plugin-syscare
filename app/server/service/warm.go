@@ -93,3 +93,11 @@ func DeleteWarmList(id string) error {
 	}
 	return nil
 }
+
+func UpdateWarmInfo(taskId string, warm *dao.WarmList) error {
+	err := dao.UpdateWarmInfo(taskId, warm)
+	if err != nil {
+		return err
+	}
+	return nil
+}

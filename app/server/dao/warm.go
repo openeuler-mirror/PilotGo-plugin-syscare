@@ -58,3 +58,9 @@ func QueryStorageDir(id string) (string, error) {
 	err := db.MySQL().Where("id = ?", id).Find(&w).Error
 	return w.TaskId, err
 }
+
+func UpdateWarmInfo(taskId string, warm *WarmList) error {
+	var w WarmList
+	err := db.MySQL().Model(&w).Where("task_id = ?", taskId).Updates(warm).Error
+	return err
+}
