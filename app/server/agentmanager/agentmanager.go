@@ -32,6 +32,7 @@ type Agent struct {
 	ID                int    `json:"id"`
 	UUID              string `json:"uuid"`
 	IP                string `json:"ip"`
+	MaxTaskNum        int    `json:"maxTaskNum"`
 	Platform          string `json:"platform"`
 	PlatformVersion   string `json:"platformVersion"`
 	OsVersion         string `json:"osVersion"`
@@ -71,6 +72,7 @@ func (am *AgentManager) recovery() error {
 			am.Agents = append(am.Agents, &Agent{
 				UUID:            a.UUID,
 				IP:              a.IP,
+				MaxTaskNum:      a.MaxTaskNum,
 				Platform:        a.Platform,
 				PlatformVersion: a.PlatformVersion,
 				OsVersion:       a.OsVersion,
@@ -119,6 +121,7 @@ func (am *AgentManager) updateAgent(uuid string, ip string) error {
 	a := &Agent{
 		UUID:            uuid,
 		IP:              ip,
+		MaxTaskNum:      info.MaxTaskNum,
 		Platform:        info.Platform,
 		PlatformVersion: info.PlatformVersion,
 		OsVersion:       info.OsVersion,
@@ -281,6 +284,7 @@ func toAgentDao(a *Agent) *dao.Agents {
 	return &dao.Agents{
 		UUID:            a.UUID,
 		IP:              a.IP,
+		MaxTaskNum:      a.MaxTaskNum,
 		Platform:        a.Platform,
 		PlatformVersion: a.PlatformVersion,
 		OsVersion:       a.OsVersion,
@@ -296,6 +300,7 @@ func (a *Agent) clone() *Agent {
 	result := &Agent{
 		UUID:            a.UUID,
 		IP:              a.IP,
+		MaxTaskNum:      a.MaxTaskNum,
 		Platform:        a.Platform,
 		PlatformVersion: a.PlatformVersion,
 		OsVersion:       a.OsVersion,

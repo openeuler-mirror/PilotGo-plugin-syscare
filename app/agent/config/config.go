@@ -10,12 +10,17 @@ import (
 type Server struct {
 	Port string `yaml:"port"`
 }
+
+type Task struct {
+	MaxTaskNum int `yaml:"max_task_num"`
+}
 type Storage struct {
 	Path string `yaml:"path"`
 	Work string `yaml:"work"`
 }
 type AgentConfig struct {
 	Server  *Server         `yaml:"server"`
+	Task    *Task           `yaml:"task"`
 	Logopts *logger.LogOpts `yaml:"log"`
 	Storage Storage         `yaml:"storage"`
 }

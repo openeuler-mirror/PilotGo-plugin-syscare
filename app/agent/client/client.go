@@ -3,6 +3,7 @@ package client
 import (
 	"sync"
 
+	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/config"
 	uos "gitee.com/openeuler/PilotGo-plugin-syscare/utils/os"
 )
 
@@ -12,6 +13,7 @@ type Client struct {
 	lock        sync.Mutex
 
 	IP              string
+	MaxTaskNum      int    //最大任务并行数
 	Platform        string //系统平台
 	PlatformVersion string //系统版本
 	OsVersion       string //可读性良好的OS具体版本
@@ -35,6 +37,7 @@ func DefaultClient() (*Client, error) {
 	}
 	GlobalClient = &Client{
 		IP:              hostInfo.IP,
+		MaxTaskNum:      config.Config().Task.MaxTaskNum,
 		Platform:        hostInfo.Platform,
 		PlatformVersion: hostInfo.PlatformVersion,
 		OsVersion:       hostInfo.OsVersion,

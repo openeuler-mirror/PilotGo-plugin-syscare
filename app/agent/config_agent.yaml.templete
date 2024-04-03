@@ -1,5 +1,7 @@
 server:
   port: "5555"
+task:
+  max_task_num: 1
 log:
   level: debug
   driver: file #可选stdout和file。stdout：输出到终端控制台；file：输出到path下的指定文件。
