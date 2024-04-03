@@ -44,3 +44,12 @@ export function delHost(ip:string ) {
     method: "delete",
   });
 }
+
+// 上传rpm文件
+export function uploadRpm(data: any) {
+  return request({
+    url: "/plugin/syscare/upload",
+    method: "post",
+    data,
+  });
+}

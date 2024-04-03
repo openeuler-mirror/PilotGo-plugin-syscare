@@ -13,10 +13,10 @@
     <div class="top_right">
       <div class="triangle"></div>
       <div class="question">
-        <el-icon style="color:#fff; cursor: pointer;" size="20" title="help" @click="hintHelp">
+        <el-icon style="color:#fff;" size="20" title="help" @click="hintHelp">
           <QuestionFilled />
         </el-icon>
-        <span class="question_helper">有任何问题，联系XXX@kylinos.cn</span>
+        <span class="question_helper">有任何问题，联系yangzhao1@kylinos.cn</span>
       </div>
     </div>
   </div>
