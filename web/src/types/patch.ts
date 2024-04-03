@@ -1,5 +1,5 @@
 export interface Patch{
-  ID: number;
+  id: number;
   creatTime: string;
   ip: string;
   status: string;
@@ -10,6 +10,7 @@ export interface Patch{
   buildKernel?: string;
   buildDebugInfo?: string;
   patchType: string;
+  patchDescription: string;
   patchs: string;
   // 热补丁包: 
   hotPatch: string;

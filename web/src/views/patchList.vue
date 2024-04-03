@@ -5,7 +5,17 @@
       <template #button_bar>
         <el-button type="primary" @click="showDialog = true">新增</el-button>
       </template>
-      <el-table-column prop="ID" label="编号" width="60" align="center" />
+      <el-table-column type="expand">
+        <template #default="{ row }">
+          <el-descriptions style="width: 70%; padding-left:4%;">
+            <el-descriptions-item label="补丁文件列表：">
+              <p style="padding:4px 10px;" v-for="(item, index) in row.patchs.split(',')">
+                {{ (index + 1) + '. ' + item }}</p>
+            </el-descriptions-item>
+          </el-descriptions>
+        </template>
+      </el-table-column>
+      <el-table-column prop="id" label="编号" width="60" align="center" />
       <el-table-column prop="ip" label="IP" width="130" align="center" />
       <el-table-column prop="buildVersion" label="构建版本" width="200" align="center" />
       <el-table-column prop="status" label="状态" width="100" align="center">
@@ -15,31 +25,32 @@
           <el-tag v-else type="primary">{{ row.status }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column prop="patchDescription" label="修复CVE" width="180" align="center" />
       <el-table-column prop="patchType" label="补丁类型" width="100" align="center" />
-      <el-table-column prop="patchs" label="补丁文件" width="240" align="center">
+      <el-table-column prop="patchVersion" label="热补丁版本" width="100" align="center">
         <template #default="{ row }">
-          <p v-for="(item, index) in row.patchs.split(',')">{{ (index + 1) + '.' + item }}</p>
+          {{ row.patchVersion + '-' + row.patchRelease }}
         </template>
       </el-table-column>
       <el-table-column prop="endTime" label="更新时间" align="center" />
       <el-table-column prop="hotPatch" label="热补丁包" align="center">
         <template #default="{ row }">
-          {{ row.hotPatch }}
+          {{ row.hotPatch ? row.hotPatch : '暂无' }}
           <el-button type="primary" link :icon="Download" @click="downloadHotPatch(row)"></el-button>
         </template>
       </el-table-column>
       <el-table-column prop="patchKernel" label="热补丁内核源码包" align="center">
         <template #default="{ row }">
-          {{ row.patchKernel }}
+          {{ row.patchKernel ? row.patchKernel : '暂无' }}
           <el-button type="primary" link :icon="Download" @click="downloadPatchKernel(row)"></el-button>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="180" align="center">
         <template #default="{ row }">
           <el-button size="small" plain @click="handleLog(row)">日志</el-button>
-          <el-popconfirm title="确定删除这台机器吗？" width="200" @confirm="handleDelete(row)">
+          <el-popconfirm title="确定删除此热补丁吗？" width="200" @confirm="handleDelete(row)">
             <template #reference>
-              <el-button type="danger" size="small" plain>删除</el-button>
+              <el-button :disabled="isDelete(row)" type="danger" size="small" plain>删除</el-button>
             </template>
           </el-popconfirm>
         </template>
@@ -48,11 +59,10 @@
     <el-dialog title="补丁包上传" width="40%" v-model="showDialog" destroy-on-close>
       <addPatch @close="showDialog = false" @update="handleRefresh" />
     </el-dialog>
-    <el-drawer v-model="log_drawer" size="70%" title="构建日志" direction="rtl" destroy-on-close>
+    <el-drawer v-model="log_drawer" size="70%" title="构建日志" direction="rtl" @close="closeDrawer" destroy-on-close>
       <el-descriptions column="1">
-        <el-descriptions-item label="日志状态：">{{ log_status }}</el-descriptions-item>
-        <el-descriptions-item label="日志详情：">
-          <pre>{{ log_detail }}</pre>
+        <el-descriptions-item>
+          <pre>{{ log_detail ? log_detail : '成功' }}</pre>
         </el-descriptions-item></el-descriptions>
     </el-drawer>
   </div>
@@ -95,10 +105,16 @@ const downloadPatchKernel = (row: Patch) => {
   window.open(window.location.origin + "/plugin/syscare/download/" + row.patchKernel + '?' + 'path=' + row.taskId);
 }
 
+// 是否能删除
+const isDelete = (row: Patch) => {
+  if (!row.status) return false;
+  return ['等待中', '构建中'].includes(row.status);
+}
+
 // 删除
 const handleDelete = (row: Patch) => {
-  if (!row.ID) return;
-  delPatch({ id: row.ID }).then((res: any) => {
+  if (!row.id) return;
+  delPatch({ id: row.id }).then((res: any) => {
     if (res.data.code === RespCodeOK) {
       handleRefresh();
       ElMessage.success(res.data.msg);

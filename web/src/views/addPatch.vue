@@ -127,7 +127,6 @@ const handleClose = () => {
 }
 
 // 确定上传
-const fileList = ref([] as any)
 const formData = new FormData();
 const handleConfirm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
