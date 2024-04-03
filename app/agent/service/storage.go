@@ -16,18 +16,6 @@ import (
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 )
 
-func MakeDir(storage string) error {
-	if _, err := os.Stat(storage); os.IsNotExist(err) {
-		err := os.MkdirAll(storage, os.ModePerm)
-		if err != nil {
-			return err
-		}
-	} else if err != nil {
-		return err
-	}
-	return nil
-}
-
 func DownloadPatchsFromServer(patch, taskId, downloadPath string) error {
 	url := "http://" + client.GlobalClient.AgentServer + "/plugin/syscare/download/" + patch + "?path=" + taskId
 

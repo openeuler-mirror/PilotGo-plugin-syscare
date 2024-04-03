@@ -5,6 +5,18 @@ import (
 	"os"
 )
 
+func MakeDir(storage string) error {
+	if _, err := os.Stat(storage); os.IsNotExist(err) {
+		err := os.MkdirAll(storage, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	} else if err != nil {
+		return err
+	}
+	return nil
+}
+
 // 读取文件所有数据，返回字符串
 func FileReadString(filePath string) (string, error) {
 	f, err := os.Open(filePath)

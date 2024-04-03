@@ -3,6 +3,7 @@ package controller
 import (
 	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/config"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/service"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/utils"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 	"gitee.com/openeuler/PilotGo/sdk/response"
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func RunCommandHandler(c *gin.Context) {
 		return
 	}
 	workDir := config.Config().Storage.Work + w.TaskId // 创建工作目录
-	if err := service.MakeDir(workDir); err != nil {
+	if err := utils.MakeDir(workDir); err != nil {
 		response.Fail(c, nil, err.Error())
 		return
 	}

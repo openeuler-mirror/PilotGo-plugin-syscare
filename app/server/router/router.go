@@ -57,7 +57,6 @@ func registerAPIs(router *gin.Engine) {
 
 	fileservice := router.Group("/plugin/syscare")
 	{
-		fileservice.POST("/upload", controller.Upload)
 		fileservice.GET("/download/:filename", controller.Download)
 	}
 }
