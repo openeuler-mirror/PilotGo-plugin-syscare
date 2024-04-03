@@ -50,3 +50,13 @@ func QueryWarmLists(c *gin.Context) {
 	response.DataPagination(c, lists, total, query)
 
 }
+
+func DeleteWarmList(c *gin.Context) {
+	id := c.Query("id")
+	err := service.DeleteWarmList(id)
+	if err != nil {
+		response.Fail(c, nil, err.Error())
+		return
+	}
+	response.Success(c, nil, "删除成功")
+}

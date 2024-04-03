@@ -1,12 +1,14 @@
 package service
 
 import (
+	"errors"
 	"mime/multipart"
 	"strings"
 	"time"
 
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/config"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/dao"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/utils"
 	"gitee.com/openeuler/PilotGo/sdk/response"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -70,4 +72,24 @@ func QueryWarmLists(query *response.PaginationQ) (interface{}, int, error) {
 	}
 	return lists, int(total), nil
 
+}
+
+func DeleteWarmList(id string) error {
+	dir, err := dao.QueryStorageDir(id)
+	if err != nil {
+		return err
+	}
+
+	// 删除本地服务器存储的热补丁包
+	path := config.Config().Storage.Path + dir
+	exitCode, _, stderr, err := utils.RunCommand("rm -rf "+path, "")
+	if exitCode != 0 || stderr != "" || err != nil {
+		return errors.New("删除本地服务器热补丁包失败")
+	}
+
+	err = dao.DeleteWarmlist(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
