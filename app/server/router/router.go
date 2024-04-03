@@ -45,6 +45,7 @@ func registerAPIs(router *gin.Engine) {
 
 	warm := router.Group("/plugin/syscare")
 	{
+		warm.POST("addWarm", controller.AddWarmList)
 		warm.GET("lists", controller.QueryWarmLists)
 	}
 

@@ -42,3 +42,8 @@ func QueryWarmLists(query *response.PaginationQ) ([]*WarmList, int64, error) {
 	}
 	return lists, total, nil
 }
+
+func SaveWarmList(warm *WarmList) error {
+	err := db.MySQL().Create(&warm).Error
+	return err
+}
