@@ -16,7 +16,7 @@ import (
 
 const (
 	// BuildStatus
-	pending  = "准备中"
+	pending  = "等待中"
 	building = "构建中"
 	Failure  = "失败"
 	Complete = "完成"

@@ -82,7 +82,6 @@ func (q *TaskQueue) dispatchTasks() {
 		if agent.taskLimit() {
 			agent.Tasks <- task // 如果可以执行任务，则将任务发送给 Agent
 		} else {
-
 			q.tasks = append([]*Task{task}, q.tasks...) // 如果不能执行任务，则将任务重新放回队列
 		}
 
@@ -133,7 +132,7 @@ func (a *Agent) taskLimit() bool {
 	defer a.mutex.Unlock()
 
 	// 如果当前正在执行的任务数量小于 maxTaskNum，则可以继续执行任务
-	return a.CurrentTasksCount < a.maxTaskNum()
+	return a.CurrentTasksCount < dao.MaxTaskNum(a.IP)
 }
 
 func (a *Agent) incrementCurrentTasksCount() {
@@ -149,10 +148,4 @@ func (a *Agent) DecrementCurrentTasksCount() {
 	if a.CurrentTasksCount > 0 {
 		a.CurrentTasksCount--
 	}
-}
-
-func (a *Agent) maxTaskNum() int {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	return dao.MaxTaskNum(a.IP)
 }
