@@ -101,3 +101,14 @@ func UpdateWarmInfo(taskId string, warm *dao.WarmList) error {
 	}
 	return nil
 }
+
+func UpdateTaskStatusToBuilding(taskId string) error {
+	w := &dao.WarmList{
+		BuildStatus: building,
+	}
+	err := dao.UpdateTaskStatusToBuilding(taskId, w)
+	if err != nil {
+		return err
+	}
+	return nil
+}

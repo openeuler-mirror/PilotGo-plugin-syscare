@@ -50,6 +50,11 @@ func registerAPIs(router *gin.Engine) {
 		warm.GET("/delete", controller.DeleteWarmList)
 	}
 
+	task := router.Group("/plugin/syscare")
+	{
+		task.POST("scriptResult", controller.ScriptResult)
+	}
+
 	fileservice := router.Group("/plugin/syscare")
 	{
 		fileservice.POST("/upload", controller.Upload)
