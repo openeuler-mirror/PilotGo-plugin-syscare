@@ -8,7 +8,7 @@ import (
 
 	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/config"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/router"
-	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/service"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/utils"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 )
 
@@ -21,7 +21,7 @@ func main() {
 		fmt.Printf("logger init failed, please check the config file: %s", err)
 		os.Exit(-1)
 	}
-	if err := service.MakeDir(config.Config().Storage.Path); err != nil {
+	if err := utils.MakeDir(config.Config().Storage.Path); err != nil {
 		fmt.Printf("storage path init failed, error: %s", err)
 		os.Exit(-1)
 	}

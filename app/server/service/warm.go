@@ -25,7 +25,7 @@ const (
 func CreateWarmList(c *gin.Context, ip, buildVersion, patchDescription, patchVersion, patchRelease, buildKernelSrc, buildDebugInfo, patchType string, Patchs []*multipart.FileHeader) error {
 	taskId := uuid.New().String()
 	workDir := config.Config().Storage.Path + taskId
-	if err := MakeDir(workDir); err != nil {
+	if err := utils.MakeDir(workDir); err != nil {
 		return err
 	}
 
