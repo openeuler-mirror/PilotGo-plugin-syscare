@@ -102,7 +102,7 @@ const getRowKey = (row: any) => {
 const expand_rowIds = ref<number[]>([]);
 const expandId = ref<string>();
 // 用户点击展开行只允许展开一行
-const onExpandChange = (row: any, expandRows: any) => {
+const onExpandChange = (row: any) => {
   expand_rowIds.value = [];
   if (row.id + '' !== expandId.value) {
     expandId.value = row.id + '';
