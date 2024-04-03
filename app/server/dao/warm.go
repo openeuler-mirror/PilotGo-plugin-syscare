@@ -47,3 +47,14 @@ func SaveWarmList(warm *WarmList) error {
 	err := db.MySQL().Create(&warm).Error
 	return err
 }
+
+func DeleteWarmlist(id string) error {
+	err := db.MySQL().Where("id = ?", id).Delete(&WarmList{}).Error
+	return err
+}
+
+func QueryStorageDir(id string) (string, error) {
+	var w WarmList
+	err := db.MySQL().Where("id = ?", id).Find(&w).Error
+	return w.TaskId, err
+}
