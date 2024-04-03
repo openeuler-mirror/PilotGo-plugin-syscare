@@ -65,8 +65,8 @@ func CreateWarmList(c *gin.Context, ip, buildVersion, patchDescription, patchVer
 	return nil
 }
 
-func QueryWarmLists(query *response.PaginationQ) (interface{}, int, error) {
-	lists, total, err := dao.QueryWarmLists(query)
+func QueryWarmLists(search string, query *response.PaginationQ) (interface{}, int, error) {
+	lists, total, err := dao.QueryWarmLists(search, query)
 	if err != nil {
 		return nil, 0, err
 	}
