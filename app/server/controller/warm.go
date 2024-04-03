@@ -35,6 +35,8 @@ func AddWarmList(c *gin.Context) {
 }
 
 func QueryWarmLists(c *gin.Context) {
+	search := c.Query("search")
+
 	query := &response.PaginationQ{}
 	err := c.ShouldBindQuery(query)
 	if err != nil {
@@ -42,7 +44,7 @@ func QueryWarmLists(c *gin.Context) {
 		return
 	}
 
-	lists, total, err := service.QueryWarmLists(query)
+	lists, total, err := service.QueryWarmLists(search, query)
 	if err != nil {
 		response.Fail(c, nil, err.Error())
 		return

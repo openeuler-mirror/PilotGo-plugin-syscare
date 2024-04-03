@@ -30,14 +30,14 @@ type WarmList struct {
 	BuildLog string `json:"buildLog"`
 }
 
-func QueryWarmLists(query *response.PaginationQ) ([]*WarmList, int64, error) {
+func QueryWarmLists(search string, query *response.PaginationQ) ([]*WarmList, int64, error) {
 	var lists []*WarmList
-	if err := db.MySQL().Limit(query.PageSize).Offset((query.Page - 1) * query.PageSize).Find(&lists).Error; err != nil {
+	if err := db.MySQL().Limit(query.PageSize).Offset((query.Page-1)*query.PageSize).Order("id desc").Where("build_machine LIKE ? OR build_status LIKE ? OR build_version LIKE ? OR patch_type LIKE ? OR patchs LIKE ? OR patch_description LIKE ? ", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%").Find(&lists).Error; err != nil {
 		return nil, 0, err
 	}
 
 	var total int64
-	if err := db.MySQL().Model(&lists).Count(&total).Error; err != nil {
+	if err := db.MySQL().Where("build_machine LIKE ? OR build_status LIKE ? OR build_version LIKE ? OR patch_type LIKE ? OR patchs LIKE ? OR patch_description LIKE ? ", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%").Model(&lists).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 	return lists, total, nil
