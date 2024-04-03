@@ -8,8 +8,10 @@ import (
 
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/agentmanager"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/config"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/server/dao"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/db"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/router"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/server/service"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 )
 
@@ -59,8 +61,12 @@ EXIT:
 }
 
 func startServices() error {
+	db.MySQL().AutoMigrate(dao.WarmList{})
+
 	if err := agentmanager.Init(); err != nil {
 		return err
 	}
+
+	service.CreateTaskQueue()
 	return nil
 }
