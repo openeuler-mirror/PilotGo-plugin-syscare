@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/config"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/server/dao"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 	"gitee.com/openeuler/PilotGo/sdk/utils/httputils"
 )
@@ -24,7 +25,6 @@ type Task struct {
 type Agent struct {
 	IP                string
 	Tasks             chan *Task
-	MaxTasksCount     int // 当前正在执行的任务数量
 	CurrentTasksCount int // 当前正在执行的任务数量
 	mutex             sync.Mutex
 }
@@ -132,8 +132,8 @@ func (a *Agent) taskLimit() bool {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
-	// 如果当前正在执行的任务数量小于 3，则可以继续执行任务
-	return a.CurrentTasksCount < 3
+	// 如果当前正在执行的任务数量小于 maxTaskNum，则可以继续执行任务
+	return a.CurrentTasksCount < a.maxTaskNum()
 }
 
 func (a *Agent) incrementCurrentTasksCount() {
@@ -149,4 +149,10 @@ func (a *Agent) DecrementCurrentTasksCount() {
 	if a.CurrentTasksCount > 0 {
 		a.CurrentTasksCount--
 	}
+}
+
+func (a *Agent) maxTaskNum() int {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+	return dao.MaxTaskNum(a.IP)
 }

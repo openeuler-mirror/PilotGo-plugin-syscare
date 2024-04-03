@@ -9,6 +9,7 @@ type Agents struct {
 	ID              int    `gorm:"primary_key;AUTO_INCREMENT"`
 	UUID            string `json:"uuid"`
 	IP              string `json:"ip"`
+	MaxTaskNum      int    `json:"maxTaskNum"`      //最大任务并行数
 	Platform        string `json:"platform"`        //系统平台
 	PlatformVersion string `json:"platformVersion"` //系统版本
 	OsVersion       string `json:"osVersion"`       //可读性良好的OS具体版本
@@ -63,4 +64,10 @@ func IsExistIP(ip string) (bool, error) {
 	var a Agents
 	err := db.MySQL().Where("ip = ?", ip).Find(&a).Error
 	return a.ID != 0, err
+}
+
+func MaxTaskNum(ip string) int {
+	var a Agents
+	db.MySQL().Where("ip = ?", ip).Find(&a)
+	return a.MaxTaskNum
 }
