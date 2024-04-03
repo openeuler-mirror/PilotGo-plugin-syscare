@@ -64,3 +64,11 @@ func UpdateWarmInfo(taskId string, warm *WarmList) error {
 	err := db.MySQL().Model(&w).Where("task_id = ?", taskId).Updates(warm).Error
 	return err
 }
+
+func UpdateTaskStatusToBuilding(taskId string, warm *WarmList) error {
+	var w WarmList
+	if err := db.MySQL().Model(&w).Where("task_id = ?", taskId).Updates(&warm).Error; err != nil {
+		return err
+	}
+	return nil
+}
