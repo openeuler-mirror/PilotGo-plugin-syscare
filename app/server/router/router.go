@@ -1,11 +1,9 @@
 package router
 
 import (
-	"net/http"
-	"strings"
-
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/config"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/controller"
+	"gitee.com/openeuler/PilotGo-plugin-syscare/server/resource"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
 	"github.com/gin-gonic/gin"
 )
@@ -29,7 +27,8 @@ func setupRouter() *gin.Engine {
 	router.Use(gin.Recovery())
 
 	registerAPIs(router)
-	staticRouter(router)
+	// 绑定前端静态资源handler
+	resource.StaticRouter(router)
 
 	return router
 }
@@ -59,19 +58,4 @@ func registerAPIs(router *gin.Engine) {
 	{
 		fileservice.GET("/download/:filename", controller.Download)
 	}
-}
-
-func staticRouter(router *gin.Engine) {
-	router.Static("/plugin/syscare/static", "../web/dist/static")
-	router.StaticFile("/plugin/syscare", "../web/dist/index.html")
-
-	// 解决页面刷新404的问题
-	router.NoRoute(func(c *gin.Context) {
-		logger.Debug("process noroute: %s", c.Request.URL)
-		if !strings.HasPrefix(c.Request.RequestURI, "/plugin/syscare/*path") {
-			c.File("../web/dist/index.html")
-			return
-		}
-		c.Status(http.StatusNotFound)
-	})
 }

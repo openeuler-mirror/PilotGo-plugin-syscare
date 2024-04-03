@@ -22,7 +22,7 @@ export default defineConfig({
       },
     },
   },
-  // base: '/plugin/atune/',
+  base: '/plugin/syscare/',
   build: {
     outDir: 'dist',
     assetsDir: 'static/', //指定静态资源存放路径

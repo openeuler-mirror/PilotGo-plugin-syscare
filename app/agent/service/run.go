@@ -1,10 +1,6 @@
 package service
 
 import (
-	"encoding/json"
-	"errors"
-	"net/http"
-
 	"gitee.com/openeuler/PilotGo-plugin-syscare/agent/client"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/utils"
 	"gitee.com/openeuler/PilotGo/sdk/logger"
@@ -53,25 +49,13 @@ func RunCommand(taskId, ip, workDir string, args []string) error {
 		BuildLog:     buildLog,
 	}
 	url := "http://" + client.GlobalClient.AgentServer + "/plugin/syscare/scriptResult"
-	resp, err := httputils.Post(url, &httputils.Params{
+	_, err = httputils.Post(url, &httputils.Params{
 		Body: data,
 	})
 	if err != nil {
 		return err
 	}
 
-	d := &struct {
-		Code    int    `json:"code"`
-		Message string `json:"msg"`
-	}{}
-	err = json.Unmarshal(resp.Body, d)
-	if err != nil {
-		logger.Error("unmarshal send result error: %s", err.Error())
-		return err
-	}
-	if d.Code != http.StatusOK {
-		return errors.New(d.Message)
-	}
 	return nil
 }
 func CommandSplice(buildKernel, buildDebugInfo, patchDescription, patchVersion, patchRelease, patchType string, patchs []string) []string {
