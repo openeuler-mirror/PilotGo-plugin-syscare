@@ -10,8 +10,9 @@
         </el-input>
       </template>
       <el-table-column type="expand">
-        <template>
-          <el-table height="200" :data="patchRpms" style="width:80%; padding-left: 40px; border-radius: 4px;">
+        <template #default="{ row }">
+          <el-table :height="row.ip ? 200 : 200" :data="patchRpms"
+            style="width:80%; padding-left: 40px; border-radius: 4px;">
             <el-table-column prop="version" label="内核版本" align="center" width="220" />
             <el-table-column label="内核源码包" align="center" width="200">
               <template #default="{ row }">
