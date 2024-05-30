@@ -1,11 +1,14 @@
 package agentmanager
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/config"
 	"gitee.com/openeuler/PilotGo-plugin-syscare/server/dao"
@@ -212,13 +215,28 @@ func getAgentInfo(ip string) (*Agent, error) {
 	url := "http://" + ip + ":" + config.Config().AgentServer.Port + "/plugin_agent_manage/info"
 	logger.Debug("agent url is: %s", url)
 
-	resp, err := httputils.Get(url, nil)
+	client := &http.Client{
+		Timeout: 3 * time.Second,
+		Transport: &http.Transport{
+			DisableKeepAlives: true,
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+
+	resp, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
 
 	AgentInfo := &Agent{}
-	err = json.Unmarshal(resp.Body, AgentInfo)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error("error reading response body: %v", err.Error())
+		return nil, err
+	}
+	err = json.Unmarshal(body, AgentInfo)
 	if err != nil {
 		logger.Error("unmarshal get agent info error: %s", err.Error())
 		return nil, err
