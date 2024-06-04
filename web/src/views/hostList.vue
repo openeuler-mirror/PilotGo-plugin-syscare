@@ -103,11 +103,12 @@ const expandHost = ref({} as Host);
 // 获取打包环境
 watchEffect(() => {
   if (expandHost.value && expandHost.value.ip)
-    getBuildEnv({ ip: expandHost.value.ip }).then((res: any) => {
-      if (res.data.code === RespCodeOK) {
-        patchRpms.value = res.data.data;
-      }
-    })
+    patchRpms.value = [];
+  getBuildEnv({ ip: expandHost.value.ip }).then((res: any) => {
+    if (res.data.code === RespCodeOK) {
+      patchRpms.value = res.data.data;
+    }
+  })
 })
 
 const inputIp = ref<string>();
